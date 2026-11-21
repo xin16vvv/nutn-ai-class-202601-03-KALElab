@@ -2036,31 +2036,21 @@
       box-shadow: 0 1px 0 rgba(23, 51, 60, .18);
     }
     #admissions-posts-title { font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif; font-weight: 900; }
-    .focus-embed-link { display: none; }
+    .focus-preview[hidden], html.focus-embed .site-header, html.focus-embed #admissions-posts { display: none; }
     html.focus-embed body { background: #f5efe5; }
-    html.focus-embed .site-header,
-    html.focus-embed .detail-hero,
-    html.focus-embed .focus-tabs,
-    html.focus-embed .admissions-post > :not(h3):not(.admissions-post-comic),
-    html.focus-embed .admissions-post:nth-child(n+3) { display: none; }
-    html.focus-embed body.detail-view #admissions-posts { padding: 12px 0; min-height: 0; }
-    html.focus-embed .admissions-post-grid { gap: 14px; align-items: stretch; }
-    html.focus-embed .admissions-post {
-      display: grid;
-      grid-template-columns: clamp(64px, 12vw, 130px) minmax(0, 1fr);
-      gap: clamp(10px, 2vw, 22px);
-      align-items: center;
-      padding: clamp(10px, 1.5vw, 18px);
-      background: #fffaf2;
-      border: 1px solid #ded0bc;
-      border-radius: 14px;
-      box-shadow: none;
-      transform: none;
-      cursor: default;
+    .focus-preview { width: min(calc(100% - 32px), 1080px); margin-inline: auto; padding: 16px 0 24px; }
+    .focus-preview-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 12px; }
+    .focus-preview-header h1 { margin: 0; font-size: 1.35rem; }
+    .focus-preview-header a, .focus-preview-cta { color: #933b24; font-weight: 800; }
+    .focus-preview-card { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); align-items: center; gap: clamp(18px, 5vw, 56px); padding: clamp(14px, 2vw, 24px); border: 1px solid #ded0bc; border-radius: 16px; background: #fffaf2; box-shadow: 0 4px 14px rgba(57,43,30,.06); color: #17333c; text-decoration: none; }
+    .focus-preview-card:hover, .focus-preview-card:focus-visible { border-color: #a97923; }
+    .focus-preview-card:hover .focus-preview-cta { text-decoration: underline; }
+    .focus-preview-card img { display: block; width: 100%; height: auto; border-radius: 10px; }
+    .focus-preview-card h2 { margin: 0 0 14px; font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.35; }
+    @media (max-width: 640px) {
+      .focus-preview-card { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .focus-preview-card img { max-width: 320px; justify-self: center; }
     }
-    html.focus-embed .admissions-post h3 { grid-area: 1 / 2; margin: 0; padding: 0; font-size: clamp(.95rem, 1.8vw, 1.35rem); line-height: 1.5; }
-    html.focus-embed .admissions-post-comic { grid-area: 1 / 1; width: 100%; margin: 0; border-radius: 8px; }
-    html.focus-embed .focus-embed-link { display: table; margin: 4px auto 12px; min-height: 36px; padding: 6px 16px; font-size: .85rem; }
   </style>
   <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("focus-embed");</script>
 </head>
@@ -2142,7 +2132,15 @@
         </div>
       </div>
     </section>
-  <a class="btn focus-embed-link" href="./" target="_blank" rel="noopener">查看完整焦點專欄 ↗</a>
+  <section class="focus-preview" hidden aria-labelledby="focus-preview-title">
+    <header class="focus-preview-header">
+      <h1 id="focus-preview-title">焦點專欄</h1>
+      <a href="./" target="_blank" rel="noopener">查看完整專欄 ↗</a>
+    </header>
+    <a class="focus-preview-card" href="./" target="_blank" rel="noopener">
+      <div><h2></h2><span class="focus-preview-cta">閱讀文章 →</span></div>
+    </a>
+  </section>
 </main>
 <dialog class="admissions-reader" aria-labelledby="admissions-reader-title">
     <form method="dialog"><button class="admissions-reader-icon admissions-reader-close" aria-label="關閉貼文" title="關閉貼文" autofocus></button></form>
@@ -2238,6 +2236,22 @@
     readerContent.addEventListener('click', event => {
       if (event.target.closest('a[href^="#"]')) admissionsReader.close();
     });
-</script>
+    const preview = document.querySelector('.focus-preview');
+    const isPreview = document.documentElement.classList.contains('focus-embed');
+    if (isPreview && admissionsPosts.length) {
+      const latest = admissionsPosts[admissionsPosts.length - 1];
+      const card = preview.querySelector('.focus-preview-card');
+      const comic = latest.querySelector('.admissions-post-comic').cloneNode();
+      comic.className = '';
+      card.prepend(comic);
+      card.querySelector('h2').textContent = latest.querySelector('h3').textContent.replace(/^【|】$/g, '');
+      card.href = './?post=' + admissionsPosts.length;
+      preview.hidden = false;
+    }
+    const requestedPost = Number(new URLSearchParams(location.search).get('post'));
+    if (!isPreview && Number.isInteger(requestedPost) && requestedPost >= 1 && requestedPost <= admissionsPosts.length) {
+      showAdmissionsPost(requestedPost - 1);
+      admissionsReader.showModal();
+    }</script>
 </body>
 </html>
