@@ -2025,7 +2025,15 @@
     .focus-resource-card .btn { margin-top: 6px; }
     .focus-resources .btn { min-height: 34px; padding: 4px 16px; font-size: .82rem; }
     #admissions-posts [role="tabpanel"][hidden] { display: none; }
-    body.v3.detail-view #header { background: #fffdf8; box-shadow: 0 1px 0 var(--line); }
+    body.v3.detail-view #header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 30;
+      background: linear-gradient(105deg, #efe1d6, #f4efe5 58%);
+      opacity: 1;
+      backdrop-filter: none;
+      box-shadow: 0 1px 0 rgba(23, 51, 60, .18);
+    }
   </style>
 </head>
 <body class='v3 detail-view'>
