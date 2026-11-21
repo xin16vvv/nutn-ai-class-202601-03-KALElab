@@ -2036,7 +2036,19 @@
       box-shadow: 0 1px 0 rgba(23, 51, 60, .18);
     }
     #admissions-posts-title { font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif; font-weight: 900; }
+    html.focus-embed .site-header,
+    html.focus-embed .detail-hero,
+    html.focus-embed .focus-tabs,
+    html.focus-embed .admissions-post > :not(h3):not(.admissions-post-comic) { display: none; }
+    html.focus-embed body.detail-view #admissions-posts { padding: 16px 0; min-height: 0; }
+    html.focus-embed .admissions-post { cursor: default; }
+    html.focus-embed .admissions-post h3 { padding: 0; }
+    html.focus-embed .admissions-post-comic { width: min(100%, 180px); margin: 10px auto 0; }
+    html.focus-embed .admissions-post:nth-child(n+3) { display: none; }
+    .focus-embed-link { display: none; }
+    html.focus-embed .focus-embed-link { display: table; margin: 16px auto 0; }
   </style>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("focus-embed");</script>
 </head>
 <body class='v3 detail-view'>
 <header class="site-header" id="header">
@@ -2116,6 +2128,7 @@
         </div>
       </div>
     </section>
+  <a class="btn focus-embed-link" href="./" target="_blank" rel="noopener">查看完整焦點專欄 ↗</a>
 </main>
 <dialog class="admissions-reader" aria-labelledby="admissions-reader-title">
     <form method="dialog"><button class="admissions-reader-icon admissions-reader-close" aria-label="關閉貼文" title="關閉貼文" autofocus></button></form>
@@ -2188,6 +2201,7 @@
       button.title = '放大貼文';
       button.setAttribute('aria-label', '放大貼文');
       button.setAttribute('aria-haspopup', 'dialog');
+      if (document.documentElement.classList.contains('focus-embed')) return;
       post.addEventListener('click', event => {
         if (event.target.closest('a') || window.getSelection()?.toString()) return;
         showAdmissionsPost(index);
