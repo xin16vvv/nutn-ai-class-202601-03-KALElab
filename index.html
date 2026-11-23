@@ -2037,19 +2037,51 @@
     }
     #admissions-posts-title { font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif; font-weight: 900; }
     .focus-preview[hidden], html.focus-embed .site-header, html.focus-embed #admissions-posts { display: none; }
-    html.focus-embed body { background: #f5efe5; }
-    .focus-preview { width: min(calc(100% - 32px), 1080px); margin-inline: auto; padding: 16px 0 24px; }
-    .focus-preview-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 12px; }
-    .focus-preview-header h1 { margin: 0; font-size: 1.35rem; }
-    .focus-preview-header a, .focus-preview-cta { color: #933b24; font-weight: 800; }
-    .focus-preview-card { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); align-items: center; gap: clamp(18px, 5vw, 56px); padding: clamp(14px, 2vw, 24px); border: 1px solid #ded0bc; border-radius: 16px; background: #fffaf2; box-shadow: 0 4px 14px rgba(57,43,30,.06); color: #17333c; text-decoration: none; }
-    .focus-preview-card:hover, .focus-preview-card:focus-visible { border-color: #a97923; }
-    .focus-preview-card:hover .focus-preview-cta { text-decoration: underline; }
-    .focus-preview-card img { display: block; width: 100%; height: auto; border-radius: 10px; }
-    .focus-preview-card h2 { margin: 0 0 14px; font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.35; }
+    html.focus-embed, html.focus-embed body { margin: 0; overflow: hidden; background: transparent; }
+    html.focus-embed .focus-preview { width: 100%; margin: 0; padding: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    html.focus-embed .focus-preview::after, html.focus-embed .focus-preview-header { display: none; }
+    .focus-preview {
+      position: relative;
+      width: min(calc(100% - 24px), 1120px);
+      margin: 12px auto;
+      padding: clamp(22px, 4vw, 44px);
+      overflow: hidden;
+      border: 1px solid rgba(23,51,60,.12);
+      border-radius: 30px 12px 30px 12px;
+      background:
+        radial-gradient(circle at 94% 5%, rgba(216,92,61,.16), transparent 29%),
+        radial-gradient(circle at 5% 96%, rgba(245,198,107,.24), transparent 31%),
+        #f7f2e8;
+      box-shadow: 0 22px 60px rgba(57,43,30,.11);
+    }
+    .focus-preview::after { content: ""; position: absolute; width: 400px; height: 400px; right: -230px; top: -250px; border: 1px solid rgba(23,63,77,.13); border-radius: 50%; pointer-events: none; }
+    .focus-preview-header { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 14px 24px; margin-bottom: 22px; }
+    .focus-preview-kicker { margin: 0 0 4px; color: #b34831; font-size: .72rem; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+    .focus-preview-header h1 { margin: 0; font-family: "Noto Serif TC", "Songti TC", serif; font-size: clamp(1.7rem, 4vw, 2.7rem); line-height: 1.15; }
+    .focus-preview-card { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(330px, .95fr) minmax(0, 1.05fr); min-height: 0; overflow: hidden; border-radius: 0 8px 22px 8px; background: rgba(255,253,248,.96); box-shadow: 0 18px 44px rgba(37,50,51,.13); color: var(--ink); text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+    .focus-preview-card:hover, .focus-preview-card:focus-visible { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(37,50,51,.18); }
+    .focus-preview-media { position: relative; min-height: 0; aspect-ratio: 1 / 1; overflow: hidden; background: #eadfce; }
+    .focus-preview-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 74%, rgba(255,253,248,.24)); pointer-events: none; }
+    .focus-preview-card img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform .4s ease; }
+    .focus-preview-card:hover img { transform: scale(1.025); }
+    .focus-preview-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 5vw, 58px); }
+    .focus-preview-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 13px; margin-bottom: 15px; color: var(--ink-soft); font-size: .78rem; font-weight: 800; }
+    .focus-preview-badge { padding: 5px 10px; border-radius: 999px; color: #a6412f; background: #f9dfd2; letter-spacing: .1em; }
+    .focus-preview-card h2 { margin: 0; font-family: "Noto Serif TC", "Songti TC", serif; font-size: clamp(1.65rem, 4vw, 3rem); line-height: 1.25; letter-spacing: -.035em; }
+    .focus-preview-summary { margin: 18px 0 24px; color: var(--ink-soft); font-size: clamp(.92rem, 1.7vw, 1.04rem); line-height: 1.8; }
+    .focus-preview-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+    .focus-preview-cta { display: inline-flex; align-items: center; width: fit-content; padding: 10px 18px; border-radius: 999px; color: #fffaf0; background: #173f4d; font-size: .88rem; font-weight: 900; text-decoration: none; }
+    .focus-preview-all { color: var(--ink); font-size: .88rem; font-weight: 900; text-decoration: none; border-bottom: 1px solid currentColor; white-space: nowrap; }
+    .focus-preview-all:hover { color: var(--terracotta); }
     @media (max-width: 640px) {
-      .focus-preview-card { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-      .focus-preview-card img { max-width: 320px; justify-self: center; }
+      .focus-preview { width: min(calc(100% - 16px), 1120px); margin: 8px auto; padding: 20px 16px 18px; border-radius: 22px 8px 22px 8px; }
+      html.focus-embed .focus-preview { width: 100%; margin: 0; padding: 0; border-radius: 0; }
+      .focus-preview-header { align-items: center; margin-bottom: 16px; }
+      .focus-preview-card { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+      .focus-preview-media { min-height: 0; aspect-ratio: 1 / 1; }
+      .focus-preview-media::after { background: linear-gradient(180deg, transparent 76%, rgba(255,253,248,.22)); }
+      .focus-preview-copy { padding: 24px 20px 26px; }
+      .focus-preview-summary { margin: 14px 0 20px; }
     }
   </style>
   <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("focus-embed");</script>
@@ -2079,7 +2111,7 @@
         <div class="detail-hero">
           <a class="detail-return" href="https://phpweb4.nutn.edu.tw/ilt/wordpress/?page_id=4596#home">← 回到課程首頁</a>
           <div>
-            <p class="eyebrow">Recruitment Updates</p>
+            <p class="eyebrow">News &amp; Insights</p>
             <h2 id="admissions-posts-title">焦點專欄</h2>
             <p>課程亮點、企業實作與招生消息。</p>
           </div>
@@ -2089,7 +2121,7 @@
           <button type="button" role="tab" id="focus-resources-tab" aria-controls="focus-resources" aria-selected="false" tabindex="-1">參考資料</button>
         </div>
         <div class="admissions-post-grid" id="focus-posts" role="tabpanel" aria-labelledby="focus-posts-tab">
-          <article class="admissions-post">
+          <article class="admissions-post" data-published="2026-11-20T09:32:00+08:00">
             <h3>正在做服務業的你，有沒有想過，你早就練出了一身本事？</h3>
             <p>尖峰時段要顧現場，客人有意見要先聽懂，遇到突發狀況還得馬上想辦法。這些每天在做的事，都是你走向下一份工作的底氣。</p>
             <p>如果你正在找工作，想要轉型，卻不知這些經驗能帶你去到哪裡。</p>
@@ -2104,7 +2136,7 @@
             <a class="btn btn-light" href="https://www.facebook.com/permalink.php?story_fbid=pfbid02yrAPpYpYShEVbwjPEjT9U2FoFPNkEqzVbp3JphNYMqKVfbwjkTnSXhWjP3guSzu9l&amp;id=61596642600439" target="_blank" rel="noopener">查看這篇貼文 <span aria-hidden="true">↗</span></a>
           </article>
 
-          <article class="admissions-post">
+          <article class="admissions-post" data-published="2026-11-21T14:12:00+08:00" data-summary="把懂顧客、懂流程、懂現場的服務經驗結合 AI，找出現場痛點、提出優化做法，讓日常經歷成為企業看得懂的履歷亮點。">
             <h3>【做過服務業，學 AI 其實超吃香！】</h3>
             <p>AI 會整理資料，但你累積的「懂顧客、懂流程、懂現場」實戰經驗，才是企業最缺的判斷力。</p>
             <p>把過去累積的服務業經驗結合 AI，只要做到三件事，就能把日常經歷變成履歷亮點：</p>
@@ -2134,12 +2166,20 @@
     </section>
   <section class="focus-preview" hidden aria-labelledby="focus-preview-title">
     <header class="focus-preview-header">
-      <h1 id="focus-preview-title">焦點專欄</h1>
-      <a href="./" target="_blank" rel="noopener">查看完整專欄 ↗</a>
+      <div><p class="focus-preview-kicker">News &amp; Insights</p><h1 id="focus-preview-title">焦點專欄</h1></div>
     </header>
-    <a class="focus-preview-card" href="./" target="_blank" rel="noopener">
-      <div><h2></h2><span class="focus-preview-cta">閱讀文章 →</span></div>
-    </a>
+    <article class="focus-preview-card">
+      <div class="focus-preview-media"></div>
+      <div class="focus-preview-copy">
+        <div class="focus-preview-meta"><span class="focus-preview-badge">最新發布</span><time></time></div>
+        <h2></h2>
+        <p class="focus-preview-summary"></p>
+        <div class="focus-preview-actions">
+          <a class="focus-preview-cta focus-preview-latest-link" href="./" target="_blank" rel="noopener">閱讀最新文章　→</a>
+          <a class="focus-preview-all" href="./" target="_blank" rel="noopener">查看全部焦點內容</a>
+        </div>
+      </div>
+    </article>
   </section>
 </main>
 <dialog class="admissions-reader" aria-labelledby="admissions-reader-title">
@@ -2243,15 +2283,30 @@
       const card = preview.querySelector('.focus-preview-card');
       const comic = latest.querySelector('.admissions-post-comic').cloneNode();
       comic.className = '';
-      card.prepend(comic);
+      card.querySelector('.focus-preview-media').append(comic);
       card.querySelector('h2').textContent = latest.querySelector('h3').textContent.replace(/^【|】$/g, '');
-      card.href = './?post=' + admissionsPosts.length;
+      card.querySelector('.focus-preview-summary').textContent = latest.dataset.summary || latest.querySelector('p').textContent;
+      card.querySelector('time').dateTime = latest.dataset.published;
+      card.querySelector('time').textContent = new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(latest.dataset.published));
+      card.querySelector('.focus-preview-latest-link').href = './?post=' + admissionsPosts.length;
       preview.hidden = false;
     }
     const requestedPost = Number(new URLSearchParams(location.search).get('post'));
     if (!isPreview && Number.isInteger(requestedPost) && requestedPost >= 1 && requestedPost <= admissionsPosts.length) {
       showAdmissionsPost(requestedPost - 1);
       admissionsReader.showModal();
+    }
+
+    if (isPreview) {
+      const reportEmbedHeight = () => {
+        const height = Math.ceil(document.documentElement.scrollHeight);
+        window.parent.postMessage({ type: 'nutn-focus-height', height }, '*');
+      };
+      requestAnimationFrame(reportEmbedHeight);
+      window.addEventListener('load', reportEmbedHeight);
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(reportEmbedHeight).observe(preview);
+      }
     }</script>
 </body>
 </html>
