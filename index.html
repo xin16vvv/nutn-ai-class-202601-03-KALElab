@@ -1951,7 +1951,9 @@
       .admissions-post-grid { grid-template-columns: minmax(0, 1fr); }
     }
     .admissions-post { position: relative; cursor: pointer; }
-    .admissions-post h3 { padding-right: 44px; }
+    .admissions-post-meta { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 8px; }
+    .admissions-post-meta time { color: #58666b; font-size: .8rem; font-variant-numeric: tabular-nums; }
+    .admissions-reader-copy .admissions-post-meta time { color: #d6d6d6; }
     .admissions-post-open, .admissions-reader-icon {
       display: grid;
       place-items: center;
@@ -1963,7 +1965,7 @@
       font: 1.55rem/1 system-ui, sans-serif;
       cursor: pointer;
     }
-    .admissions-post-open { position: absolute; top: 12px; right: 12px; color: var(--ink); background: #f1e8dc; }
+    .admissions-post-open { flex: none; color: var(--ink); background: #f1e8dc; }
     .admissions-post-open:hover { background: #ead7c1; }
     .admissions-reader {
       --reader-edge: clamp(14px, 1.25vw, 24px);
@@ -2172,6 +2174,8 @@
             <p>👇 <a href="https://phpweb4.nutn.edu.tw/ilt/wordpress/?page_id=4596">查看完整課綱與報名方式</a></p>
             <p>#服務業職涯 #營運支援 #服務業AI #青年AI實戰養成班</p>
             <img class="admissions-post-comic" src="assets/%E6%9C%8D%E5%8B%99%E6%A5%AD%20AI%20%E8%81%B7%E6%B6%AF%E5%8D%87%E7%B4%9A.png" width="1254" height="1254" alt="四格漫畫：行政總務、業務銷售與門市營業支撐企業營運，運用 AI 處理文書、優化流程、分析營運與評估風險" loading="lazy">
+            <a class="btn" href="https://www.facebook.com/profile.php?id=61596642600439" target="_blank" rel="noopener">關注 FB 粉專看更多 <span aria-hidden="true">↗</span></a>
+            <a class="btn btn-light" href="https://www.facebook.com/permalink.php?story_fbid=pfbid0mkbh2Jahi3U5rCpfuk14JzqupBiwoYXBNfqgrMSxgWWs2sFEx1vGrUVvZnfiPf7il&amp;id=61596642600439" target="_blank" rel="noopener">查看這篇貼文 <span aria-hidden="true">↗</span></a>
           </article>
         </div>
         <div class="focus-resources" id="focus-resources" role="tabpanel" aria-labelledby="focus-resources-tab" tabindex="0" hidden>
@@ -2247,7 +2251,11 @@
     });
 
     const admissionsReader = document.querySelector('.admissions-reader');
-    const admissionsPosts = [...document.querySelectorAll('.admissions-post-grid > .admissions-post')];
+    const postsByLink = [...document.querySelectorAll('.admissions-post-grid > .admissions-post')];
+    const admissionsPosts = [...postsByLink].sort((a, b) => Date.parse(b.dataset.published) - Date.parse(a.dataset.published));
+    admissionsPosts[0]?.parentElement.append(...admissionsPosts);
+    const postDateFormat = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const postTimeFormat = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
     const readerContent = admissionsReader.querySelector('.admissions-reader-content');
     const readerPosition = admissionsReader.querySelector('.admissions-reader-position');
     let currentPost = 0;
@@ -2279,7 +2287,15 @@
         showAdmissionsPost(index);
         admissionsReader.showModal();
       });
-      post.querySelector('h3').after(button);
+      const meta = document.createElement('div');
+      meta.className = 'admissions-post-meta';
+      const time = document.createElement('time');
+      time.dateTime = post.dataset.published;
+      const published = new Date(time.dateTime);
+      time.textContent = postDateFormat.format(published);
+      if (time.dateTime.includes('T')) time.textContent += ' ' + postTimeFormat.format(published);
+      meta.append(time, button);
+      post.prepend(meta);
     });
 
     admissionsReader.querySelectorAll('[data-step]').forEach(button => {
@@ -2299,7 +2315,7 @@
     const preview = document.querySelector('.focus-preview');
     const isPreview = document.documentElement.classList.contains('focus-embed');
     if (isPreview && admissionsPosts.length) {
-      const latest = admissionsPosts[admissionsPosts.length - 1];
+      const latest = admissionsPosts[0];
       const card = preview.querySelector('.focus-preview-card');
       const comic = latest.querySelector('.admissions-post-comic')?.cloneNode();
       if (comic) comic.className = '';
@@ -2309,13 +2325,13 @@
       card.querySelector('h2').textContent = latest.querySelector('h3').textContent.replace(/^【|】$/g, '');
       card.querySelector('.focus-preview-summary').textContent = latest.dataset.summary || latest.querySelector('p').textContent;
       card.querySelector('time').dateTime = latest.dataset.published;
-      card.querySelector('time').textContent = new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(latest.dataset.published));
-      card.querySelector('.focus-preview-latest-link').href = './?post=' + admissionsPosts.length;
+      card.querySelector('time').textContent = postDateFormat.format(new Date(latest.dataset.published));
+      card.querySelector('.focus-preview-latest-link').href = './?post=' + (postsByLink.indexOf(latest) + 1);
       preview.hidden = false;
     }
     const requestedPost = Number(new URLSearchParams(location.search).get('post'));
     if (!isPreview && Number.isInteger(requestedPost) && requestedPost >= 1 && requestedPost <= admissionsPosts.length) {
-      showAdmissionsPost(requestedPost - 1);
+      showAdmissionsPost(admissionsPosts.indexOf(postsByLink[requestedPost - 1]));
       admissionsReader.showModal();
     }
 
