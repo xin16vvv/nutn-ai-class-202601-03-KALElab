@@ -2061,6 +2061,8 @@
     .focus-preview-card { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(330px, .95fr) minmax(0, 1.05fr); min-height: 0; overflow: hidden; border-radius: 0 8px 22px 8px; background: rgba(255,253,248,.96); box-shadow: 0 18px 44px rgba(37,50,51,.13); color: var(--ink); text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
     .focus-preview-card:hover, .focus-preview-card:focus-visible { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(37,50,51,.18); }
     .focus-preview-media { position: relative; min-height: 0; aspect-ratio: 1 / 1; overflow: hidden; background: #eadfce; }
+    .focus-preview-card:has(.focus-preview-media[hidden]), .admissions-reader-content:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+    .focus-preview-media[hidden] { display: none; }
     .focus-preview-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 74%, rgba(255,253,248,.24)); pointer-events: none; }
     .focus-preview-card img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform .4s ease; }
     .focus-preview-card:hover img { transform: scale(1.025); }
@@ -2079,7 +2081,9 @@
       .focus-preview-header { align-items: center; margin-bottom: 16px; }
       .focus-preview-card { grid-template-columns: minmax(0, 1fr); min-height: 0; }
       .focus-preview-media { min-height: 0; aspect-ratio: 1 / 1; }
-      .focus-preview-media::after { background: linear-gradient(180deg, transparent 76%, rgba(255,253,248,.22)); }
+      .focus-preview-card:has(.focus-preview-media[hidden]), .admissions-reader-content:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+    .focus-preview-media[hidden] { display: none; }
+    .focus-preview-media::after { background: linear-gradient(180deg, transparent 76%, rgba(255,253,248,.22)); }
       .focus-preview-copy { padding: 24px 20px 26px; }
       .focus-preview-summary { margin: 14px 0 20px; }
     }
@@ -2152,6 +2156,22 @@
             <img class="admissions-post-comic" src="assets/LINE_NOTE_261121_1.jpg" width="1254" height="1254" alt="招生四格漫畫：運用服務業經驗找出問題，結合 AI 提出方案，帶著成果探索職涯" loading="lazy">
             <a class="btn" href="https://www.facebook.com/profile.php?id=61596642600439" target="_blank" rel="noopener">關注 FB 粉專看更多 <span aria-hidden="true">↗</span></a>
             <a class="btn btn-light" href="https://www.facebook.com/permalink.php?story_fbid=pfbid02suPLsVUwjp78AA18GuAese3DckejZXZzT4862ksX4eJ2yqN1cezVLooF7VrFXWYml&amp;id=61596642600439" target="_blank" rel="noopener">查看這篇貼文 <span aria-hidden="true">↗</span></a>
+          </article>
+
+          <article class="admissions-post" data-published="2026-11-24" data-summary="行政／總務、業務銷售與門市營業同列調薪幅度較突出的職類。從文書處理到營運分析，看看四項 AI 技能如何用在服務業。">
+            <h3>【行政／總務也上調薪榜！看似基礎的工作其實不簡單？】</h3>
+            <p>104《2025 民生服務業人才報告書》指出，2024 至 2025 年，行政／總務、業務銷售、門市營業同列調薪幅度較突出的職類。</p>
+            <p>業務拓展市場、帶動營收，門市支撐第一線服務，行政／總務則提升效率、降低營運風險。缺工之下，這三類職務更凸顯對企業競爭力的重要性。善用 AI，也能提升你的職場競爭力！</p>
+            <ul>
+              <li>📝 加快文書處理｜用提示工程處理行政文書</li>
+              <li>⚙️ 減少重複作業｜運用 AI 代理與自動化</li>
+              <li>📊 預測營運趨勢｜分析 LOB 數據，提出決策建議</li>
+              <li>💡 協助團隊評估｜管理風險、設計成效指標</li>
+            </ul>
+            <p>想把這些 AI 技能用在職場？<br>國立臺南大學 × 經濟部商業發展署<br>【服務業 AI 創新應用實戰人才培育班】</p>
+            <p>👇 <a href="https://phpweb4.nutn.edu.tw/ilt/wordpress/?page_id=4596">查看完整課綱與報名方式</a></p>
+            <p>#服務業職涯 #營運支援 #服務業AI #青年AI實戰養成班</p>
+            <img class="admissions-post-comic" src="assets/%E6%9C%8D%E5%8B%99%E6%A5%AD%20AI%20%E8%81%B7%E6%B6%AF%E5%8D%87%E7%B4%9A.png" width="1254" height="1254" alt="四格漫畫：行政總務、業務銷售與門市營業支撐企業營運，運用 AI 處理文書、優化流程、分析營運與評估風險" loading="lazy">
           </article>
         </div>
         <div class="focus-resources" id="focus-resources" role="tabpanel" aria-labelledby="focus-resources-tab" tabindex="0" hidden>
@@ -2239,8 +2259,8 @@
       copy.querySelector('.admissions-post-open').remove();
       copy.querySelector('h3').id = 'admissions-reader-title';
       const comic = copy.querySelector('img');
-      comic.loading = 'eager';
-      readerContent.replaceChildren(copy, comic);
+      if (comic) comic.loading = 'eager';
+      readerContent.replaceChildren(copy, ...[comic].filter(Boolean));
       readerPosition.textContent = `${currentPost + 1} / ${admissionsPosts.length}`;
       readerContent.scrollTop = 0;
     }
@@ -2281,9 +2301,11 @@
     if (isPreview && admissionsPosts.length) {
       const latest = admissionsPosts[admissionsPosts.length - 1];
       const card = preview.querySelector('.focus-preview-card');
-      const comic = latest.querySelector('.admissions-post-comic').cloneNode();
-      comic.className = '';
-      card.querySelector('.focus-preview-media').append(comic);
+      const comic = latest.querySelector('.admissions-post-comic')?.cloneNode();
+      if (comic) comic.className = '';
+      const media = card.querySelector('.focus-preview-media');
+      media.hidden = !comic;
+      if (comic) media.append(comic);
       card.querySelector('h2').textContent = latest.querySelector('h3').textContent.replace(/^【|】$/g, '');
       card.querySelector('.focus-preview-summary').textContent = latest.dataset.summary || latest.querySelector('p').textContent;
       card.querySelector('time').dateTime = latest.dataset.published;
