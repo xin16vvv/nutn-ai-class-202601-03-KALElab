@@ -2089,6 +2089,13 @@
       .focus-preview-copy { padding: 24px 20px 26px; }
       .focus-preview-summary { margin: 14px 0 20px; }
     }
+      .focus-carousel-slides { display: grid; }
+    .focus-carousel-slides > .focus-preview-card { grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden; pointer-events: none; }
+    .focus-carousel-slides > .focus-preview-card.is-current { opacity: 1; visibility: visible; pointer-events: auto; }
+    .focus-carousel-controls:not([hidden]) { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 0 4px; }
+    .focus-carousel-controls button { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: #fffdf8; color: var(--ink); cursor: pointer; font: inherit; }
+    .focus-carousel-controls button:hover { background: #f9dfd2; }
+    .focus-carousel-count { min-width: 4ch; text-align: center; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   </style>
   <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("focus-embed");</script>
 </head>
@@ -2206,12 +2213,19 @@
         <h2></h2>
         <p class="focus-preview-summary"></p>
         <div class="focus-preview-actions">
-          <a class="focus-preview-cta focus-preview-latest-link" href="./" target="_blank" rel="noopener">閱讀最新文章　→</a>
-          <a class="focus-preview-all" href="./" target="_blank" rel="noopener">查看全部焦點內容</a>
+          <a class="focus-preview-cta focus-preview-latest-link" href="./" target="_blank" rel="noopener">閱讀文章　→</a>
+          <a class="focus-preview-all" href="./index.html" target="_blank" rel="noopener">查看全部焦點內容</a>
         </div>
       </div>
     </article>
-  </section>
+        </div>
+      <div class="focus-carousel-controls" role="group" aria-label="焦點專欄輪播控制" hidden>
+        <button type="button" data-carousel-step="-1" aria-label="上一篇">‹</button>
+        <span class="focus-carousel-count"></span>
+        <button type="button" data-carousel-step="1" aria-label="下一篇">›</button>
+        <button type="button" class="focus-carousel-toggle">暫停輪播</button>
+      </div>
+    </section>
 </main>
 <dialog class="admissions-reader" aria-labelledby="admissions-reader-title">
     <form method="dialog"><button class="admissions-reader-icon admissions-reader-close" aria-label="關閉貼文" title="關閉貼文" autofocus></button></form>
@@ -2322,19 +2336,122 @@
     const preview = document.querySelector('.focus-preview');
     const isPreview = document.documentElement.classList.contains('focus-embed');
     if (isPreview && admissionsPosts.length) {
-      const latest = admissionsPosts[0];
-      const card = preview.querySelector('.focus-preview-card');
-      const comic = latest.querySelector('.admissions-post-comic')?.cloneNode();
-      if (comic) comic.className = '';
-      const media = card.querySelector('.focus-preview-media');
-      media.hidden = !comic;
-      if (comic) media.append(comic);
-      card.querySelector('h2').textContent = latest.querySelector('h3').textContent.replace(/^【|】$/g, '');
-      card.querySelector('.focus-preview-summary').textContent = latest.dataset.summary || latest.querySelector('p').textContent;
-      card.querySelector('time').dateTime = latest.dataset.published;
-      card.querySelector('time').textContent = postDateFormat.format(new Date(latest.dataset.published));
-      card.querySelector('.focus-preview-latest-link').href = './?post=' + (postsByLink.indexOf(latest) + 1);
+      const slideList = preview.querySelector('.focus-carousel-slides');
+      const template = slideList.firstElementChild;
+      const controls = preview.querySelector('.focus-carousel-controls');
+      const count = controls.querySelector('.focus-carousel-count');
+      const toggle = controls.querySelector('.focus-carousel-toggle');
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      let playing = !reducedMotion.matches;
+      let hovering = false;
+      let currentSlide = 0;
+      let requestedSlide = 0;
+      let requestVersion = 0;
+      let timer;
+      let loadingSlide = false;
+      let animation;
+
+      const slides = admissionsPosts.map((post, index) => {
+        const card = template.cloneNode(true);
+        const comic = post.querySelector('.admissions-post-comic')?.cloneNode();
+        const media = card.querySelector('.focus-preview-media');
+        media.hidden = !comic;
+        if (comic) {
+          comic.className = '';
+          if (index === 0) comic.loading = 'eager';
+          media.append(comic);
+        }
+        card.inert = true;
+        card.querySelector('.focus-preview-badge').hidden = index !== 0;
+        card.querySelector('h2').textContent = post.querySelector('h3').textContent.replace(/^【|】$/g, '');
+        card.querySelector('.focus-preview-summary').textContent = post.dataset.summary || post.querySelector('p').textContent;
+        card.querySelector('time').dateTime = post.dataset.published;
+        card.querySelector('time').textContent = postDateFormat.format(new Date(post.dataset.published));
+        card.querySelector('.focus-preview-latest-link').href = './index.html?post=' + (postsByLink.indexOf(post) + 1);
+        return card;
+      });
+      slideList.replaceChildren(...slides);
+
+      function showSlide(index) {
+        const oldSlide = slides[currentSlide];
+        const newSlide = slides[index];
+        animation?.cancel();
+        oldSlide.classList.remove('is-current');
+        oldSlide.inert = true;
+        newSlide.classList.add('is-current');
+        newSlide.inert = false;
+        currentSlide = index;
+        count.textContent = (index + 1) + ' / ' + slides.length;
+      }
+
+      function scheduleRotation() {
+        clearTimeout(timer);
+        toggle.textContent = playing ? '暫停輪播' : '播放輪播';
+        count.setAttribute('aria-live', playing ? 'off' : 'polite');
+        if (slides.length > 1 && playing && !hovering && !document.hidden && !loadingSlide) {
+          timer = setTimeout(() => changeSlide(1), 8000);
+        }
+      }
+
+      async function changeSlide(step) {
+        const index = (requestedSlide + step + slides.length) % slides.length;
+        requestedSlide = index;
+        const version = ++requestVersion;
+        loadingSlide = true;
+        scheduleRotation();
+        const comic = slides[index].querySelector('img');
+        if (comic) {
+          comic.loading = 'eager';
+          try {
+            await comic.decode();
+          } catch {
+            slides[index].querySelector('.focus-preview-media').hidden = true;
+          }
+        }
+        if (version !== requestVersion) return;
+        loadingSlide = false;
+        if (index !== currentSlide) {
+          showSlide(index);
+          if (!reducedMotion.matches) {
+            animation = slides[index].querySelector('.focus-preview-copy').animate(
+              [{ opacity: .7 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' }
+            );
+          }
+        }
+        scheduleRotation();
+      }
+
+      showSlide(0);
       preview.hidden = false;
+      controls.hidden = slides.length < 2;
+      controls.querySelectorAll('[data-carousel-step]').forEach(button => {
+        button.addEventListener('click', () => {
+          playing = false;
+          changeSlide(Number(button.dataset.carouselStep));
+        });
+      });
+      toggle.addEventListener('click', () => {
+        playing = !playing;
+        scheduleRotation();
+      });
+      preview.addEventListener('mouseenter', () => { hovering = true; scheduleRotation(); });
+      preview.addEventListener('mouseleave', () => { hovering = false; scheduleRotation(); });
+      preview.addEventListener('focusin', event => {
+        if (event.target === toggle && !toggle.matches(':focus-visible')) return;
+        if (playing && loadingSlide) {
+          requestVersion++;
+          requestedSlide = currentSlide;
+          loadingSlide = false;
+        }
+        playing = false;
+        scheduleRotation();
+      });
+      document.addEventListener('visibilitychange', scheduleRotation);
+      reducedMotion.addEventListener('change', event => {
+        if (event.matches) playing = false;
+        scheduleRotation();
+      });
+      scheduleRotation();
     }
     const requestedPost = Number(new URLSearchParams(location.search).get('post'));
     if (!isPreview && Number.isInteger(requestedPost) && requestedPost >= 1 && requestedPost <= admissionsPosts.length) {
@@ -2344,7 +2461,7 @@
 
     if (isPreview) {
       const reportEmbedHeight = () => {
-        const height = Math.ceil(document.documentElement.scrollHeight);
+        const height = Math.ceil(preview.getBoundingClientRect().bottom + window.scrollY);
         window.parent.postMessage({ type: 'nutn-focus-height', height }, '*');
       };
       requestAnimationFrame(reportEmbedHeight);
