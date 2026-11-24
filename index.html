@@ -2092,7 +2092,7 @@
       .focus-carousel-slides { display: grid; }
     .focus-carousel-slides > .focus-preview-card { grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden; pointer-events: none; }
     .focus-carousel-slides > .focus-preview-card.is-current { opacity: 1; visibility: visible; pointer-events: auto; }
-    .focus-carousel-controls:not([hidden]) { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 0 4px; }
+    .focus-carousel-controls:not([hidden]) { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 8px 8px; }
     .focus-carousel-controls button { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: #fffdf8; color: var(--ink); cursor: pointer; font: inherit; }
     .focus-carousel-controls button:hover { background: #f9dfd2; }
     .focus-carousel-count { min-width: 4ch; text-align: center; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
@@ -2206,6 +2206,12 @@
     <header class="focus-preview-header">
       <div><p class="focus-preview-kicker">News &amp; Insights</p><h1 id="focus-preview-title">焦點專欄</h1></div>
     </header>
+    <div class="focus-carousel-controls" role="group" aria-label="焦點專欄輪播控制" hidden>
+      <button type="button" data-carousel-step="-1" aria-label="上一篇">‹</button>
+      <span class="focus-carousel-count"></span>
+      <button type="button" data-carousel-step="1" aria-label="下一篇">›</button>
+      <button type="button" class="focus-carousel-toggle">暫停輪播</button>
+    </div>
     <div class="focus-carousel-slides">
       <article class="focus-preview-card">
         <div class="focus-preview-media"></div>
@@ -2220,12 +2226,6 @@
         </div>
       </article>
     </div>
-      <div class="focus-carousel-controls" role="group" aria-label="焦點專欄輪播控制" hidden>
-        <button type="button" data-carousel-step="-1" aria-label="上一篇">‹</button>
-        <span class="focus-carousel-count"></span>
-        <button type="button" data-carousel-step="1" aria-label="下一篇">›</button>
-        <button type="button" class="focus-carousel-toggle">暫停輪播</button>
-      </div>
     </section>
 </main>
 <dialog class="admissions-reader" aria-labelledby="admissions-reader-title">
